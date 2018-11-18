@@ -1,21 +1,21 @@
-# PacButton
+# Switcher
 
-<img src="/art/preview.gif" alt="sample" title="sample" width="320" height="600" align="right" vspace="52" />
+<img src="/art/preview.gif" alt="sample" title="sample" width="260" height="390" align="right" vspace="52" />
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Platform](https://img.shields.io/badge/platform-android-green.svg)](http://developer.android.com/index.html)
 [![API](https://img.shields.io/badge/API-19%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=19)
 
-Created this cool [video/photo switch animation](https://dribbble.com/shots/5487871-Video-Photo-Switcher-Exploration) from [Oleg Frolov](https://dribbble.com/Volorf)  as android library. 
+Created this cool [switch animation](https://dribbble.com/shots/5429846-Switcher-XLIV) from [Oleg Frolov](https://dribbble.com/Volorf) as an android library. 
 
 USAGE
 -----
 
-Just add PacButton view in your layout XML and PacButton library in your project via Gradle:
+Just add Switcher view in your layout XML and Switcher library in your project via Gradle:
 
 ```gradle
 dependencies {
-  implementation 'com.bitvale:pacbutton:1.0.0'
+  implementation 'com.bitvale:switcher:1.0.0'
 }
 ```
 
@@ -23,48 +23,35 @@ XML
 -----
 
 ```xml
-<com.bitvale.pacbutton.PacButton
-    android:id="@+id/pac_button"
-    android:layout_width="@dimen/pac_size"
-    android:layout_height="@dimen/pac_size"
-    app:topIcon="@drawable/ic_video"
-    app:bottomIcon="@drawable/ic_photo"
-    app:iconHeight="@dimen/icon_size"
-    app:iconWidth="@dimen/icon_size"
-    app:pacGradientColor_1="@color/gradient_color_1"
-    app:pacGradientColor_2="@color/gradient_color_2" />
+<com.bitvale.pacbutton.SwitcherX // or SwitcherC
+    android:id="@+id/switcher"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:switcher_on_color="@color/on_color"
+    app:switcher_off_color="@color/off_color"
+    app:switcher_icon_color="@color/icon_color" />
 ```
 
-You must use the following properties in your XML to change your PacButton.
+You must use the following properties in your XML to change your Switcher.
 
 
 ##### Properties:
 
-* `app:topIcon`                     (drawable)  -> default  none
-* `app:bottomIcon`                  (drawable)  -> default  none
-* `app:iconHeight`                  (dimension) -> default  none
-* `app:iconWidth`                   (dimension) -> default  none
-* `app:pacColor`                    (color)     -> default  none
-* `app:pacGradientColor_1`          (color)     -> default  #7651F8
-* `app:pacGradientColor_2`          (color)     -> default  #E74996
-
-You can use solid color with pacColor property or gradient with pacGradientColor properties.
+* `android:checked`                 (boolean)   -> default  true
+* `app:switcher_on_color`           (color)     -> default  #48ea8b
+* `app:switcher_off_color`          (color)     -> default  #ff4651
+* `app:switcher_icon_color`         (color)     -> default  white
 
 Kotlin
 -----
 
 ```kotlin
-pac_button.setSelectAction {
-    if (it) some_image.setImageResource(R.drawable.ic_video_cam)
-    else some_image.setImageResource(R.drawable.ic_photo_cam)
-}
-
-pac_button.setAnimationUpdateListener { progress ->
-    some_image.alpha = 1 - progress
+switcher.setOnCheckedChangeListener { checked ->
+    if (checked) action()
 }
 ```
 
 LICENCE
 -----
 
-LavaFab by [Alexander Kolpakov](https://play.google.com/store/apps/dev?id=7044571013168957413) is licensed under an [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+Switcher by [Alexander Kolpakov](https://play.google.com/store/apps/dev?id=7044571013168957413) is licensed under an [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).

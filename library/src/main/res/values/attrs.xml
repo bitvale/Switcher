@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="Switcher">
-        <attr name="android:padding" />
         <attr name="android:elevation" />
         <attr name="switcher_width" format="dimension"/>
         <attr name="switcher_height" format="dimension"/>

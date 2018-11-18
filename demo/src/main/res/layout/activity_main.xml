@@ -22,10 +22,10 @@
         android:layout_marginStart="@dimen/margin_medium"
         android:layout_marginTop="@dimen/margin_medium"
         android:text="@string/switcher_x"
-        android:textSize="24sp"
+        android:textSize="@dimen/text_size_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
+    
     <com.bitvale.switcher.SwitcherC
         android:id="@+id/switcher_c"
         android:layout_width="wrap_content"
@@ -43,7 +43,7 @@
         android:layout_marginTop="@dimen/margin_medium"
         android:text="@string/switcher_c"
         android:textColor="@color/text_color_default"
-        android:textSize="24sp"
+        android:textSize="@dimen/text_size_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_switcher_x" />
 
@@ -53,16 +53,16 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:focusable="true"
-        android:padding="16dp"
+        android:padding="@dimen/padding_normal"
         android:background="?attr/selectableItemBackground"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
+            android:id="@+id/img_dribbble"
+            android:layout_width="@dimen/dribble_size"
+            android:layout_height="@dimen/dribble_size"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:srcCompat="@drawable/dribbble" />
@@ -71,14 +71,14 @@
             android:id="@+id/tv_design"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="@dimen/margin_small"
             android:gravity="center"
             android:text="@string/about_design"
             android:textColor="@color/text_color_default"
-            android:textSize="18sp"
+            android:textSize="@dimen/text_size_about"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imageView"
+            app:layout_constraintStart_toEndOf="@+id/img_dribbble"
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
