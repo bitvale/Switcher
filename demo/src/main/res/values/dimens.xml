@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- standard metrics -->
+    <dimen name="space_tiny">4dp</dimen>
+    <dimen name="space_small">8dp</dimen>
+    <dimen name="space_normal">16dp</dimen>
+    <dimen name="space_medium">24dp</dimen>
+
+    <!-- standard paddings -->
+    <dimen name="padding_small">@dimen/space_small</dimen>
+
+    <!-- standard margins -->
+    <dimen name="margin_tiny">@dimen/space_tiny</dimen>
+    <dimen name="margin_small">@dimen/space_small</dimen>
+    <dimen name="margin_normal">@dimen/space_normal</dimen>
+    <dimen name="margin_medium">@dimen/space_medium</dimen>
+</resources>

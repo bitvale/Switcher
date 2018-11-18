@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="Switcher">
+        <attr name="android:padding" />
+        <attr name="android:elevation" />
+        <attr name="android:checked" format="boolean" />
+        <attr name="switcher_on_color" format="color" />
+        <attr name="switcher_off_color" format="color" />
+        <attr name="switcher_icon_color" format="color" />
+    </declare-styleable>
+</resources>

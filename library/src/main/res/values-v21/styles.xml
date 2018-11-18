@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Switcher" parent="BaseSwitcher">
+        <item name="android:elevation">@dimen/switcher_elevation</item>
+    </style>
+</resources>

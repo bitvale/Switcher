@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Switchers</string>
+    <string name="switcher_x">Switcher X</string>
+    <string name="switcher_c">Switcher C</string>
+    <string name="about_design">Switchers design is created by Oleg Frolov, see his other works on dribbble.com</string>
+    <string name="dribbble_link">https://dribbble.com/Volorf</string>
+</resources>
