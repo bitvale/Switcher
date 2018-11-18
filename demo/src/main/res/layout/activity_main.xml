@@ -8,8 +8,8 @@
 
     <com.bitvale.switcher.SwitcherX
         android:id="@+id/switcher_x"
-        android:layout_width="56dp"
-        android:layout_height="32dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginRight="@dimen/margin_medium"
         app:layout_constraintBottom_toBottomOf="@+id/tv_switcher_x"
         app:layout_constraintRight_toRightOf="parent"
@@ -28,8 +28,8 @@
 
     <com.bitvale.switcher.SwitcherC
         android:id="@+id/switcher_c"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="@+id/tv_switcher_c"
         app:layout_constraintEnd_toEndOf="@+id/switcher_x"
         app:layout_constraintStart_toStartOf="@+id/switcher_x"

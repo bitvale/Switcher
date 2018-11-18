@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.view.ViewOutlineProvider
 import androidx.annotation.ColorInt
@@ -33,6 +34,8 @@ class SwitcherC @JvmOverloads constructor(
     private var iconRadius = 0f
     private var iconClipRadius = 0f
     private var iconCollapsedWidth = 0f
+    private var defHeight = 0
+    private var defWidth = 0
     private var checked = true
 
     @ColorInt
@@ -119,7 +122,26 @@ class SwitcherC @JvmOverloads constructor(
 
         iconPaint.color = iconColor
 
+        defHeight = typedArray.getDimensionPixelOffset(R.styleable.Switcher_switcher_height, 0)
+        defWidth = typedArray.getDimensionPixelOffset(R.styleable.Switcher_switcher_width, 0)
+
         typedArray.recycle()
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+
+        val widthMode = View.MeasureSpec.getMode(widthMeasureSpec)
+        var width = View.MeasureSpec.getSize(widthMeasureSpec)
+        val heightMode = View.MeasureSpec.getMode(heightMeasureSpec)
+        var height = View.MeasureSpec.getSize(heightMeasureSpec)
+
+        if (widthMode != MeasureSpec.EXACTLY || heightMode != MeasureSpec.EXACTLY) {
+            val min = Math.min(defWidth.toFloat(), defHeight.toFloat()).toInt()
+            width = min
+            height = min
+        }
+
+        setMeasuredDimension(width, height)
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -268,7 +290,7 @@ class SwitcherC @JvmOverloads constructor(
             ViewOutlineProvider() {
 
         override fun getOutline(view: View, outline: Outline) {
-            outline.setRoundRect(0, 0, width, height, switcherRadius)
+            outline.setRoundRect(0, 0, (switcherRadius * 2).toInt(), (switcherRadius * 2).toInt(), switcherRadius)
         }
     }
 }

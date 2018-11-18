@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="BaseSwitcher">
+        <item name="switcher_width">@dimen/switcher_width</item>
+        <item name="switcher_height">@dimen/switcher_height</item>
         <item name="switcher_on_color">@color/switcher_on_color</item>
         <item name="switcher_off_color">@color/switcher_off_color</item>
         <item name="switcher_icon_color">@color/switcher_icon_color</item>

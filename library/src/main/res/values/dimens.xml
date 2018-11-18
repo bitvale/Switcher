@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="switcher_elevation">4dp</dimen>
+    <dimen name="switcher_height">26dp</dimen>
+    <dimen name="switcher_width">46dp</dimen>
 </resources>
