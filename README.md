@@ -8,6 +8,10 @@
 
 Created this cool [switch animation](https://dribbble.com/shots/5429846-Switcher-XLIV) from [Oleg Frolov](https://dribbble.com/Volorf) as an android library. 
 
+<a href="https://android.jlelse.eu/android-dynamic-custom-view-is-easy-433258cbb80f">
+  <img alt="Read on Medium" src="/art/medium.png" width="196" height="80" hspace="15" />
+</a>
+
 USAGE
 -----
 
