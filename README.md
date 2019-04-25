@@ -27,7 +27,7 @@ XML
 -----
 
 ```xml
-<com.bitvale.pacbutton.SwitcherX // or SwitcherC
+<com.bitvale.switcher.SwitcherX // or SwitcherC
     android:id="@+id/switcher"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
