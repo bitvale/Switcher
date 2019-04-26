@@ -280,11 +280,24 @@ class SwitcherX @JvmOverloads constructor(
      * <p>Changes the checked state of this switch.</p>
      *
      * @param checked true to check the switch, false to uncheck it
+     * @param withAnimation use animation
      */
-    fun setChecked(checked: Boolean) {
+    fun setChecked(checked: Boolean, withAnimation: Boolean = true) {
         if (this.checked != checked) {
-            this.checked = checked
-            animateSwitch()
+            if (withAnimation) {
+                animateSwitch()
+            }
+            else {
+                this.checked = checked
+                if (!checked) {
+                    currentColor = offColor
+                    iconProgress = 1f
+                }
+                else {
+                    currentColor = onColor
+                    iconProgress = 0f
+                }
+            }
         }
     }
 
@@ -300,11 +313,11 @@ class SwitcherX @JvmOverloads constructor(
         if (state is Bundle) {
             super.onRestoreInstanceState(state.getParcelable(STATE))
             checked = state.getBoolean(KEY_CHECKED)
-            if (!checked) forceCheck()
+            if (!checked) forceUncheck()
         }
     }
 
-    private fun forceCheck() {
+    private fun forceUncheck() {
         currentColor = offColor
         iconProgress = 1f
     }
