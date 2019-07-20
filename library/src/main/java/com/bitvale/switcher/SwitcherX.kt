@@ -5,15 +5,15 @@ import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.annotation.TargetApi
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Outline
-import android.graphics.Paint
-import android.graphics.RectF
+import android.graphics.*
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
+import android.renderscript.Allocation
+import android.renderscript.Element
+import android.renderscript.RenderScript
+import android.renderscript.ScriptIntrinsicBlur
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.view.ViewOutlineProvider
 import androidx.annotation.ColorInt
@@ -21,6 +21,7 @@ import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
 import androidx.core.graphics.withTranslation
 import com.bitvale.switcher.commons.*
+import kotlin.math.min
 
 /**
  * Created by Alexander Kolpakov on 11/7/2018
@@ -54,15 +55,20 @@ class SwitcherX @JvmOverloads constructor(
 
     private val iconClipPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
+    private val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private var shadow: Bitmap? = null
+    private var shadowOffset = 0f
+
     private var animatorSet: AnimatorSet? = AnimatorSet()
 
-    private var onClickRadiusOffset = 0f
+    private var onClickOffset = 0f
         set(value) {
             field = value
-            switcherRect.left = value
-            switcherRect.top = value
-            switcherRect.right = width.toFloat() - value
-            switcherRect.bottom = height.toFloat() - value
+            switcherRect.left = value + shadowOffset
+            switcherRect.top = value + shadowOffset / 2
+            switcherRect.right = width.toFloat() - value - shadowOffset
+            switcherRect.bottom = height.toFloat() - value - shadowOffset - shadowOffset / 2
+            if (!isLollipopAndAbove()) generateShadow()
             invalidate()
         }
 
@@ -97,6 +103,7 @@ class SwitcherX @JvmOverloads constructor(
                         iconRect.centerX() + clipOffset,
                         iconRect.centerY() + clipOffset
                 )
+                if (!isLollipopAndAbove()) generateShadow()
                 postInvalidateOnAnimation()
             }
         }
@@ -129,18 +136,30 @@ class SwitcherX @JvmOverloads constructor(
         defWidth = typedArray.getDimensionPixelOffset(R.styleable.Switcher_switcher_width, 0)
 
         typedArray.recycle()
+
+        if (!isLollipopAndAbove() && switchElevation > 0f) {
+            shadowPaint.colorFilter = PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN)
+            shadowPaint.alpha = 51 // 20%
+            setShadowBlurRadius(switchElevation)
+            setLayerType(LAYER_TYPE_SOFTWARE, null)
+        }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
 
-        val widthMode = View.MeasureSpec.getMode(widthMeasureSpec)
-        var width = View.MeasureSpec.getSize(widthMeasureSpec)
-        val heightMode = View.MeasureSpec.getMode(heightMeasureSpec)
-        var height = View.MeasureSpec.getSize(heightMeasureSpec)
+        val widthMode = MeasureSpec.getMode(widthMeasureSpec)
+        var width = MeasureSpec.getSize(widthMeasureSpec)
+        val heightMode = MeasureSpec.getMode(heightMeasureSpec)
+        var height = MeasureSpec.getSize(heightMeasureSpec)
 
         if (widthMode != MeasureSpec.EXACTLY || heightMode != MeasureSpec.EXACTLY) {
             width = defWidth
             height = defHeight
+        }
+
+        if (!isLollipopAndAbove()) {
+            width += switchElevation.toInt() * 2
+            height += switchElevation.toInt() * 2
         }
 
         setMeasuredDimension(width, height)
@@ -148,10 +167,21 @@ class SwitcherX @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        switcherRect.right = width.toFloat()
-        switcherRect.bottom = height.toFloat()
 
-        switcherCornerRadius = height / 2f
+        if (isLollipopAndAbove()) {
+            outlineProvider = SwitchOutline(w, h)
+            elevation = switchElevation
+        } else {
+            shadowOffset = switchElevation
+            iconTranslateX = -shadowOffset
+        }
+
+        switcherRect.left = shadowOffset
+        switcherRect.top = shadowOffset / 2
+        switcherRect.right = width.toFloat() - shadowOffset
+        switcherRect.bottom = height.toFloat() - shadowOffset - shadowOffset / 2
+
+        switcherCornerRadius = (height - shadowOffset * 2) / 2f
 
         iconRadius = switcherCornerRadius * 0.6f
         iconClipRadius = iconRadius / 2.25f
@@ -161,9 +191,9 @@ class SwitcherX @JvmOverloads constructor(
 
         iconRect.set(
                 width - switcherCornerRadius - iconCollapsedWidth / 2,
-                (height - iconHeight) / 2f,
+                ((height - iconHeight) / 2f) - shadowOffset / 2,
                 width - switcherCornerRadius + iconCollapsedWidth / 2,
-                height - (height - iconHeight) / 2f
+                (height - (height - iconHeight) / 2f) - shadowOffset / 2
         )
 
         if (!checked) {
@@ -177,16 +207,44 @@ class SwitcherX @JvmOverloads constructor(
                     iconRect.centerY() + iconClipRadius
             )
 
-            iconTranslateX = -(width - switcherCornerRadius * 2)
+            iconTranslateX = -(width - shadowOffset - switcherCornerRadius * 2)
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            outlineProvider = SwitchOutline(w, h)
-            elevation = switchElevation
+        if (!isLollipopAndAbove()) generateShadow()
+    }
+
+    private fun generateShadow() {
+        if (switchElevation == 0f) return
+        if (!isInEditMode) {
+            if (shadow == null) {
+                shadow = Bitmap.createBitmap(width, height, Bitmap.Config.ALPHA_8)
+            } else {
+                shadow?.eraseColor(Color.TRANSPARENT)
+            }
+            val c = Canvas(shadow as Bitmap)
+
+            c.drawRoundRect(switcherRect, switcherCornerRadius, switcherCornerRadius, shadowPaint)
+
+            val rs = RenderScript.create(context)
+            val blur = ScriptIntrinsicBlur.create(rs, Element.U8(rs))
+            val input = Allocation.createFromBitmap(rs, shadow)
+            val output = Allocation.createTyped(rs, input.type)
+            blur.setRadius(switchElevation)
+            blur.setInput(input)
+            blur.forEach(output)
+            output.copyTo(shadow)
+            input.destroy()
+            output.destroy()
+            blur.destroy()
         }
     }
 
     override fun onDraw(canvas: Canvas?) {
+        // shadow
+        if (!isLollipopAndAbove() && switchElevation > 0f && !isInEditMode) {
+            canvas?.drawBitmap(shadow as Bitmap, 0f, shadowOffset, null)
+        }
+
         // switcher
         canvas?.drawRoundRect(switcherRect, switcherCornerRadius, switcherCornerRadius, switcherPaint)
 
@@ -195,8 +253,8 @@ class SwitcherX @JvmOverloads constructor(
                 x = iconTranslateX
         ) {
             drawRoundRect(iconRect, switcherCornerRadius, switcherCornerRadius, iconPaint)
-            // don't draw clip path if icon is collapsed state (to prevent drawing small circle
-            // on rounded rect when switch is checked)
+            /* don't draw clip path if icon is collapsed (to prevent drawing small circle
+            on rounded rect when switch is checked)*/
             if (iconClipRect.width() > iconCollapsedWidth)
                 drawRoundRect(iconClipRect, iconRadius, iconRadius, iconClipPaint)
         }
@@ -206,19 +264,19 @@ class SwitcherX @JvmOverloads constructor(
         animatorSet?.cancel()
         animatorSet = AnimatorSet()
 
-        onClickRadiusOffset = ON_CLICK_RADIUS_OFFSET
+        onClickOffset = ON_CLICK_RADIUS_OFFSET
 
         var amplitude = BOUNCE_ANIM_AMPLITUDE_IN
         var frequency = BOUNCE_ANIM_FREQUENCY_IN
         var iconTranslateA = 0f
-        var iconTranslateB = -(width - switcherCornerRadius * 2)
+        var iconTranslateB = -(width - shadowOffset - switcherCornerRadius * 2)
         var newProgress = 1f
 
         if (!checked) {
             amplitude = BOUNCE_ANIM_AMPLITUDE_OUT
             frequency = BOUNCE_ANIM_FREQUENCY_OUT
             iconTranslateA = iconTranslateB
-            iconTranslateB = 0f
+            iconTranslateB = -shadowOffset
             newProgress = 0f
         }
 
@@ -236,7 +294,7 @@ class SwitcherX @JvmOverloads constructor(
                 iconTranslateX = lerp(iconTranslateA, iconTranslateB, value)
             }
             doOnEnd {
-                onClickRadiusOffset = 0f
+                onClickOffset = 0f
             }
             duration = TRANSLATE_ANIMATION_DURATION
         }
@@ -286,14 +344,12 @@ class SwitcherX @JvmOverloads constructor(
         if (this.checked != checked) {
             if (withAnimation) {
                 animateSwitch()
-            }
-            else {
+            } else {
                 this.checked = checked
                 if (!checked) {
                     currentColor = offColor
                     iconProgress = 1f
-                }
-                else {
+                } else {
                     currentColor = onColor
                     iconProgress = 0f
                 }
@@ -320,6 +376,11 @@ class SwitcherX @JvmOverloads constructor(
     private fun forceUncheck() {
         currentColor = offColor
         iconProgress = 1f
+    }
+
+    private fun setShadowBlurRadius(elevation: Float) {
+        val maxElevation = context.toPx(24f)
+        switchElevation = min(25f * (elevation / maxElevation), 25f)
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

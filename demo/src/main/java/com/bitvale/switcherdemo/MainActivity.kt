@@ -19,11 +19,13 @@ class MainActivity : AppCompatActivity() {
         val disabledColor = ContextCompat.getColor(this, R.color.text_color_disabled)
 
         switcher_x.setOnCheckedChangeListener { checked ->
+            switcher_c.setChecked(checked)
             if (checked) tv_switcher_x.setTextColor(defaultColor)
             else tv_switcher_x.setTextColor(disabledColor)
         }
 
         switcher_c.setOnCheckedChangeListener { checked ->
+            switcher_x.setChecked(checked)
             if (checked) tv_switcher_c.setTextColor(defaultColor)
             else tv_switcher_c.setTextColor(disabledColor)
         }

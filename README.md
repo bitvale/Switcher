@@ -19,7 +19,7 @@ Just add Switcher view in your layout XML and Switcher library in your project v
 
 ```gradle
 dependencies {
-  implementation 'com.bitvale:switcher:1.0.1'
+  implementation 'com.bitvale:switcher:1.0.2'
 }
 ```
 

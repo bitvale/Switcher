@@ -5,20 +5,21 @@ import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.annotation.TargetApi
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Outline
-import android.graphics.Paint
-import android.graphics.RectF
+import android.graphics.*
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
+import android.renderscript.Allocation
+import android.renderscript.Element
+import android.renderscript.RenderScript
+import android.renderscript.ScriptIntrinsicBlur
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.view.ViewOutlineProvider
 import androidx.annotation.ColorInt
 import androidx.core.animation.doOnStart
 import com.bitvale.switcher.commons.*
+import kotlin.math.min
 
 
 /**
@@ -45,7 +46,6 @@ class SwitcherC @JvmOverloads constructor(
     @ColorInt
     private var iconColor = 0
 
-    private val switcherRect = RectF(0f, 0f, 0f, 0f)
     private val switcherPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private val iconRect = RectF(0f, 0f, 0f, 0f)
@@ -56,15 +56,9 @@ class SwitcherC @JvmOverloads constructor(
 
     private var animatorSet: AnimatorSet? = AnimatorSet()
 
-    private var onClickRadiusOffset = 0f
-        set(value) {
-            field = value
-            switcherRect.left = value
-            switcherRect.top = value
-            switcherRect.right = width.toFloat() - value
-            switcherRect.bottom = height.toFloat() - value
-            invalidate()
-        }
+    private val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private var shadow: Bitmap? = null
+    private var shadowOffset = 0f
 
     @ColorInt
     private var currentColor = 0
@@ -84,8 +78,8 @@ class SwitcherC @JvmOverloads constructor(
                 field = value
 
                 val iconOffset = lerp(0f, iconRadius - iconCollapsedWidth / 2, value)
-                iconRect.left = switcherRadius - iconCollapsedWidth / 2 - iconOffset
-                iconRect.right = switcherRadius + iconCollapsedWidth / 2 + iconOffset
+                iconRect.left = (switcherRadius - iconCollapsedWidth / 2 - iconOffset) + shadowOffset
+                iconRect.right = (switcherRadius + iconCollapsedWidth / 2 + iconOffset) + shadowOffset
 
                 val clipOffset = lerp(0f, iconClipRadius, value)
                 iconClipRect.set(
@@ -126,19 +120,31 @@ class SwitcherC @JvmOverloads constructor(
         defWidth = typedArray.getDimensionPixelOffset(R.styleable.Switcher_switcher_width, 0)
 
         typedArray.recycle()
+
+        if (!isLollipopAndAbove() && switchElevation > 0f) {
+            shadowPaint.colorFilter = PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN)
+            shadowPaint.alpha = 51 // 20%
+            setShadowBlurRadius(switchElevation)
+            setLayerType(LAYER_TYPE_SOFTWARE, null)
+        }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
 
-        val widthMode = View.MeasureSpec.getMode(widthMeasureSpec)
-        var width = View.MeasureSpec.getSize(widthMeasureSpec)
-        val heightMode = View.MeasureSpec.getMode(heightMeasureSpec)
-        var height = View.MeasureSpec.getSize(heightMeasureSpec)
+        val widthMode = MeasureSpec.getMode(widthMeasureSpec)
+        var width = MeasureSpec.getSize(widthMeasureSpec)
+        val heightMode = MeasureSpec.getMode(heightMeasureSpec)
+        var height = MeasureSpec.getSize(heightMeasureSpec)
 
         if (widthMode != MeasureSpec.EXACTLY || heightMode != MeasureSpec.EXACTLY) {
-            val min = Math.min(defWidth.toFloat(), defHeight.toFloat()).toInt()
+            val min = min(defWidth.toFloat(), defHeight.toFloat()).toInt()
             width = min
             height = min
+        }
+
+        if (!isLollipopAndAbove()) {
+            width += switchElevation.toInt() * 2
+            height += switchElevation.toInt() * 2
         }
 
         setMeasuredDimension(width, height)
@@ -147,7 +153,14 @@ class SwitcherC @JvmOverloads constructor(
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
-        switcherRadius = Math.min(w.toFloat(), h.toFloat()) / 2f
+        if (isLollipopAndAbove()) {
+            outlineProvider = SwitchOutline(w, h)
+            elevation = switchElevation
+        } else {
+            shadowOffset = switchElevation
+        }
+
+        switcherRadius = (min(w.toFloat(), h.toFloat()) / 2f) - shadowOffset
 
         iconRadius = switcherRadius * 0.5f
         iconClipRadius = iconRadius / 2.25f
@@ -156,15 +169,15 @@ class SwitcherC @JvmOverloads constructor(
         iconHeight = iconRadius * 2f
 
         iconRect.set(
-                switcherRadius - iconCollapsedWidth / 2f,
-                (switcherRadius * 2f - iconHeight) / 2f,
-                switcherRadius + iconCollapsedWidth / 2f,
-                switcherRadius * 2f - (switcherRadius * 2f - iconHeight) / 2f
+                (switcherRadius - iconCollapsedWidth / 2f) + shadowOffset,
+                ((switcherRadius * 2f - iconHeight) / 2f) + shadowOffset / 2,
+                (switcherRadius + iconCollapsedWidth / 2f) + shadowOffset,
+                (switcherRadius * 2f - (switcherRadius * 2f - iconHeight) / 2f) + shadowOffset / 2
         )
 
         if (!checked) {
-            iconRect.left = switcherRadius - iconCollapsedWidth / 2f - (iconRadius - iconCollapsedWidth / 2f)
-            iconRect.right = switcherRadius + iconCollapsedWidth / 2f + (iconRadius - iconCollapsedWidth / 2f)
+            iconRect.left = (switcherRadius - iconCollapsedWidth / 2f - (iconRadius - iconCollapsedWidth / 2f)) + shadowOffset
+            iconRect.right = (switcherRadius + iconCollapsedWidth / 2f + (iconRadius - iconCollapsedWidth / 2f)) + shadowOffset
 
             iconClipRect.set(
                     iconRect.centerX() - iconClipRadius,
@@ -174,20 +187,49 @@ class SwitcherC @JvmOverloads constructor(
             )
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            outlineProvider = SwitchOutline(w, h)
-            elevation = switchElevation
+        if (!isLollipopAndAbove()) generateShadow()
+    }
+
+    private fun generateShadow() {
+        if (switchElevation == 0f) return
+        if (!isInEditMode) {
+            if (shadow == null) {
+                shadow = Bitmap.createBitmap(width, height, Bitmap.Config.ALPHA_8)
+            } else {
+                shadow?.eraseColor(Color.TRANSPARENT)
+            }
+            val c = Canvas(shadow as Bitmap)
+
+            c.drawCircle(switcherRadius + shadowOffset, switcherRadius + shadowOffset / 2,
+                    switcherRadius, shadowPaint)
+            val rs = RenderScript.create(context)
+            val blur = ScriptIntrinsicBlur.create(rs, Element.U8(rs))
+            val input = Allocation.createFromBitmap(rs, shadow)
+            val output = Allocation.createTyped(rs, input.type)
+            blur.setRadius(switchElevation)
+            blur.setInput(input)
+            blur.forEach(output)
+            output.copyTo(shadow)
+            input.destroy()
+            output.destroy()
+            blur.destroy()
         }
     }
 
     override fun onDraw(canvas: Canvas?) {
+        // shadow
+        if (!isLollipopAndAbove() && switchElevation > 0f && !isInEditMode) {
+            canvas?.drawBitmap(shadow as Bitmap, 0f, shadowOffset, null)
+        }
+
         // switcher
-        canvas?.drawCircle(switcherRadius, switcherRadius, switcherRadius, switcherPaint)
+        canvas?.drawCircle(switcherRadius + shadowOffset, switcherRadius + shadowOffset / 2,
+                switcherRadius, switcherPaint)
 
         // icon
         canvas?.drawRoundRect(iconRect, switcherRadius, switcherRadius, iconPaint)
-        // don't draw clip path if icon is collapsed state (to prevent drawing small circle
-        // on rounded rect when switch is checked)
+        /* don't draw clip path if icon is collapsed (to prevent drawing small circle
+        on rounded rect when switch is checked)*/
         if (iconClipRect.width() > iconCollapsedWidth)
             canvas?.drawRoundRect(iconClipRect, iconRadius, iconRadius, iconClipPaint)
 
@@ -196,8 +238,6 @@ class SwitcherC @JvmOverloads constructor(
     private fun animateSwitch() {
         animatorSet?.cancel()
         animatorSet = AnimatorSet()
-
-        onClickRadiusOffset = ON_CLICK_RADIUS_OFFSET
 
         var amplitude = BOUNCE_ANIM_AMPLITUDE_IN
         var frequency = BOUNCE_ANIM_FREQUENCY_IN
@@ -209,7 +249,7 @@ class SwitcherC @JvmOverloads constructor(
             newProgress = 0f
         }
 
-        val switcherAnimator = ValueAnimator.ofFloat(iconProgress, newProgress).apply {
+        val iconAnimator = ValueAnimator.ofFloat(iconProgress, newProgress).apply {
             addUpdateListener {
                 iconProgress = it.animatedValue as Float
             }
@@ -235,7 +275,7 @@ class SwitcherC @JvmOverloads constructor(
                 checked = !checked
                 listener?.invoke(checked)
             }
-            playTogether(switcherAnimator, colorAnimator)
+            playTogether(iconAnimator, colorAnimator)
             start()
         }
     }
@@ -262,14 +302,12 @@ class SwitcherC @JvmOverloads constructor(
         if (this.checked != checked) {
             if (withAnimation) {
                 animateSwitch()
-            }
-            else {
+            } else {
                 this.checked = checked
                 if (!checked) {
                     currentColor = offColor
                     iconProgress = 1f
-                }
-                else {
+                } else {
                     currentColor = onColor
                     iconProgress = 0f
                 }
@@ -296,6 +334,11 @@ class SwitcherC @JvmOverloads constructor(
     private fun forceUncheck() {
         currentColor = offColor
         iconProgress = 1f
+    }
+
+    private fun setShadowBlurRadius(elevation: Float) {
+        val maxElevation = context.toPx(24f)
+        switchElevation = min(25f * (elevation / maxElevation), 25f)
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
