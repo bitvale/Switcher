@@ -19,7 +19,7 @@ Just add Switcher view in your layout XML and Switcher library in your project v
 
 ```gradle
 dependencies {
-  implementation 'com.bitvale:switcher:1.0.3'
+  implementation 'com.bitvale:switcher:1.0.4'
 }
 ```
 
@@ -45,6 +45,7 @@ You must use the following properties in your XML to change your Switcher.
 * `app:switcher_on_color`           (color)     -> default  #48ea8b
 * `app:switcher_off_color`          (color)     -> default  #ff4651
 * `app:switcher_icon_color`         (color)     -> default  white
+* `app:elevation`                   (dimension) -> default  4dp
 
 Kotlin
 -----

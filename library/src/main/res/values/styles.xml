@@ -6,7 +6,7 @@
         <item name="switcher_on_color">@color/switcher_on_color</item>
         <item name="switcher_off_color">@color/switcher_off_color</item>
         <item name="switcher_icon_color">@color/switcher_icon_color</item>
-        <item name="android:elevation">@dimen/switcher_elevation</item>
+        <item name="elevation">@dimen/switcher_elevation</item>
     </style>
 
     <style name="Switcher" parent="BaseSwitcher"/>

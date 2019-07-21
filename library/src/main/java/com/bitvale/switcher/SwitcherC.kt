@@ -101,7 +101,7 @@ class SwitcherC @JvmOverloads constructor(
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.Switcher,
                 defStyleAttr, R.style.Switcher)
 
-        switchElevation = typedArray.getDimension(R.styleable.Switcher_android_elevation, 0f)
+        switchElevation = typedArray.getDimension(R.styleable.Switcher_elevation, 0f)
 
         onColor = typedArray.getColor(R.styleable.Switcher_switcher_on_color, 0)
         offColor = typedArray.getColor(R.styleable.Switcher_switcher_off_color, 0)
