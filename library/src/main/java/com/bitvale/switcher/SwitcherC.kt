@@ -37,7 +37,7 @@ class SwitcherC @JvmOverloads constructor(
     private var iconCollapsedWidth = 0f
     private var defHeight = 0
     private var defWidth = 0
-    private var checked = true
+    var isChecked = true
 
     @ColorInt
     private var onColor = 0
@@ -107,11 +107,11 @@ class SwitcherC @JvmOverloads constructor(
         offColor = typedArray.getColor(R.styleable.Switcher_switcher_off_color, 0)
         iconColor = typedArray.getColor(R.styleable.Switcher_switcher_icon_color, 0)
 
-        checked = typedArray.getBoolean(R.styleable.Switcher_android_checked, true)
+        isChecked = typedArray.getBoolean(R.styleable.Switcher_android_checked, true)
 
-        if (!checked) iconProgress = 1f
+        if (!isChecked) iconProgress = 1f
 
-        currentColor = if (checked) onColor
+        currentColor = if (isChecked) onColor
         else offColor
 
         iconPaint.color = iconColor
@@ -175,7 +175,7 @@ class SwitcherC @JvmOverloads constructor(
                 (switcherRadius * 2f - (switcherRadius * 2f - iconHeight) / 2f) + shadowOffset / 2
         )
 
-        if (!checked) {
+        if (!isChecked) {
             iconRect.left = (switcherRadius - iconCollapsedWidth / 2f - (iconRadius - iconCollapsedWidth / 2f)) + shadowOffset
             iconRect.right = (switcherRadius + iconCollapsedWidth / 2f + (iconRadius - iconCollapsedWidth / 2f)) + shadowOffset
 
@@ -229,7 +229,7 @@ class SwitcherC @JvmOverloads constructor(
         // icon
         canvas?.drawRoundRect(iconRect, switcherRadius, switcherRadius, iconPaint)
         /* don't draw clip path if icon is collapsed (to prevent drawing small circle
-        on rounded rect when switch is checked)*/
+        on rounded rect when switch is isChecked)*/
         if (iconClipRect.width() > iconCollapsedWidth)
             canvas?.drawRoundRect(iconClipRect, iconRadius, iconRadius, iconClipPaint)
 
@@ -243,7 +243,7 @@ class SwitcherC @JvmOverloads constructor(
         var frequency = BOUNCE_ANIM_FREQUENCY_IN
         var newProgress = 1f
 
-        if (!checked) {
+        if (!isChecked) {
             amplitude = BOUNCE_ANIM_AMPLITUDE_OUT
             frequency = BOUNCE_ANIM_FREQUENCY_OUT
             newProgress = 0f
@@ -257,7 +257,7 @@ class SwitcherC @JvmOverloads constructor(
             duration = SWITCHER_ANIMATION_DURATION
         }
 
-        val toColor = if (!checked) onColor else offColor
+        val toColor = if (!isChecked) onColor else offColor
 
         iconClipPaint.color = toColor
 
@@ -272,8 +272,8 @@ class SwitcherC @JvmOverloads constructor(
 
         animatorSet?.apply {
             doOnStart {
-                checked = !checked
-                listener?.invoke(checked)
+                isChecked = !isChecked
+                listener?.invoke(isChecked)
             }
             playTogether(iconAnimator, colorAnimator)
             start()
@@ -283,27 +283,27 @@ class SwitcherC @JvmOverloads constructor(
     private var listener: ((isChecked: Boolean) -> Unit)? = null
 
     /**
-     * Register a callback to be invoked when the checked state of this switch
+     * Register a callback to be invoked when the isChecked state of this switch
      * changes.
      *
-     * @param listener the callback to call on checked state change
+     * @param listener the callback to call on isChecked state change
      */
     fun setOnCheckedChangeListener(listener: (isChecked: Boolean) -> Unit) {
         this.listener = listener
     }
 
     /**
-     * <p>Changes the checked state of this switch.</p>
+     * <p>Changes the isChecked state of this switch.</p>
      *
      * @param checked true to check the switch, false to uncheck it
      * @param withAnimation use animation
      */
     fun setChecked(checked: Boolean, withAnimation: Boolean = true) {
-        if (this.checked != checked) {
+        if (this.isChecked != checked) {
             if (withAnimation) {
                 animateSwitch()
             } else {
-                this.checked = checked
+                this.isChecked = checked
                 if (!checked) {
                     currentColor = offColor
                     iconProgress = 1f
@@ -318,7 +318,7 @@ class SwitcherC @JvmOverloads constructor(
     override fun onSaveInstanceState(): Parcelable {
         super.onSaveInstanceState()
         return Bundle().apply {
-            putBoolean(KEY_CHECKED, checked)
+            putBoolean(KEY_CHECKED, isChecked)
             putParcelable(STATE, super.onSaveInstanceState())
         }
     }
@@ -326,8 +326,8 @@ class SwitcherC @JvmOverloads constructor(
     override fun onRestoreInstanceState(state: Parcelable?) {
         if (state is Bundle) {
             super.onRestoreInstanceState(state.getParcelable(STATE))
-            checked = state.getBoolean(KEY_CHECKED)
-            if (!checked) forceUncheck()
+            isChecked = state.getBoolean(KEY_CHECKED)
+            if (!isChecked) forceUncheck()
         }
     }
 
