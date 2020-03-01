@@ -3,9 +3,17 @@ package com.bitvale.switcher
 import android.animation.AnimatorSet
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.Context
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Outline
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
+import android.graphics.RectF
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
@@ -20,16 +28,28 @@ import androidx.annotation.ColorInt
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
 import androidx.core.graphics.withTranslation
-import com.bitvale.switcher.commons.*
+import com.bitvale.switcher.commons.BOUNCE_ANIM_AMPLITUDE_IN
+import com.bitvale.switcher.commons.BOUNCE_ANIM_AMPLITUDE_OUT
+import com.bitvale.switcher.commons.BOUNCE_ANIM_FREQUENCY_IN
+import com.bitvale.switcher.commons.BOUNCE_ANIM_FREQUENCY_OUT
+import com.bitvale.switcher.commons.COLOR_ANIMATION_DURATION
+import com.bitvale.switcher.commons.KEY_CHECKED
+import com.bitvale.switcher.commons.ON_CLICK_RADIUS_OFFSET
+import com.bitvale.switcher.commons.STATE
+import com.bitvale.switcher.commons.SWITCHER_ANIMATION_DURATION
+import com.bitvale.switcher.commons.TRANSLATE_ANIMATION_DURATION
+import com.bitvale.switcher.commons.isLollipopAndAbove
+import com.bitvale.switcher.commons.lerp
+import com.bitvale.switcher.commons.toPx
 import kotlin.math.min
 
 /**
  * Created by Alexander Kolpakov on 11/7/2018
  */
 class SwitcherX @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet? = null,
-        defStyleAttr: Int = 0
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
     private var iconRadius = 0f
@@ -98,10 +118,10 @@ class SwitcherX @JvmOverloads constructor(
 
                 val clipOffset = lerp(0f, iconClipRadius, value)
                 iconClipRect.set(
-                        iconRect.centerX() - clipOffset,
-                        iconRect.centerY() - clipOffset,
-                        iconRect.centerX() + clipOffset,
-                        iconRect.centerY() + clipOffset
+                    iconRect.centerX() - clipOffset,
+                    iconRect.centerY() - clipOffset,
+                    iconRect.centerX() + clipOffset,
+                    iconRect.centerY() + clipOffset
                 )
                 if (!isLollipopAndAbove()) generateShadow()
                 postInvalidateOnAnimation()
@@ -113,9 +133,14 @@ class SwitcherX @JvmOverloads constructor(
         setOnClickListener { animateSwitch() }
     }
 
+    @SuppressLint("CustomViewStyleable")
     private fun retrieveAttributes(attrs: AttributeSet, defStyleAttr: Int) {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.Switcher,
-                defStyleAttr, R.style.Switcher)
+        val typedArray = context.obtainStyledAttributes(
+            attrs,
+            R.styleable.Switcher,
+            defStyleAttr,
+            R.style.Switcher
+        )
 
         switchElevation = typedArray.getDimension(R.styleable.Switcher_elevation, 0f)
 
@@ -127,8 +152,7 @@ class SwitcherX @JvmOverloads constructor(
 
         if (!isChecked) iconProgress = 1f
 
-        currentColor = if (isChecked) onColor
-        else offColor
+        currentColor = if (isChecked) onColor else offColor
 
         iconPaint.color = iconColor
 
@@ -146,7 +170,6 @@ class SwitcherX @JvmOverloads constructor(
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-
         val widthMode = MeasureSpec.getMode(widthMeasureSpec)
         var width = MeasureSpec.getSize(widthMeasureSpec)
         val heightMode = MeasureSpec.getMode(heightMeasureSpec)
@@ -190,21 +213,23 @@ class SwitcherX @JvmOverloads constructor(
         iconHeight = iconRadius * 2f
 
         iconRect.set(
-                width - switcherCornerRadius - iconCollapsedWidth / 2,
-                ((height - iconHeight) / 2f) - shadowOffset / 2,
-                width - switcherCornerRadius + iconCollapsedWidth / 2,
-                (height - (height - iconHeight) / 2f) - shadowOffset / 2
+            width - switcherCornerRadius - iconCollapsedWidth / 2,
+            ((height - iconHeight) / 2f) - shadowOffset / 2,
+            width - switcherCornerRadius + iconCollapsedWidth / 2,
+            (height - (height - iconHeight) / 2f) - shadowOffset / 2
         )
 
         if (!isChecked) {
-            iconRect.left = width - switcherCornerRadius - iconCollapsedWidth / 2 - (iconRadius - iconCollapsedWidth / 2)
-            iconRect.right = width - switcherCornerRadius + iconCollapsedWidth / 2 + (iconRadius - iconCollapsedWidth / 2)
+            iconRect.left =
+                width - switcherCornerRadius - iconCollapsedWidth / 2 - (iconRadius - iconCollapsedWidth / 2)
+            iconRect.right =
+                width - switcherCornerRadius + iconCollapsedWidth / 2 + (iconRadius - iconCollapsedWidth / 2)
 
             iconClipRect.set(
-                    iconRect.centerX() - iconClipRadius,
-                    iconRect.centerY() - iconClipRadius,
-                    iconRect.centerX() + iconClipRadius,
-                    iconRect.centerY() + iconClipRadius
+                iconRect.centerX() - iconClipRadius,
+                iconRect.centerY() - iconClipRadius,
+                iconRect.centerX() + iconClipRadius,
+                iconRect.centerY() + iconClipRadius
             )
 
             iconTranslateX = -(width - shadowOffset - switcherCornerRadius * 2)
@@ -246,11 +271,16 @@ class SwitcherX @JvmOverloads constructor(
         }
 
         // switcher
-        canvas?.drawRoundRect(switcherRect, switcherCornerRadius, switcherCornerRadius, switcherPaint)
+        canvas?.drawRoundRect(
+            switcherRect,
+            switcherCornerRadius,
+            switcherCornerRadius,
+            switcherPaint
+        )
 
         // icon
         canvas?.withTranslation(
-                x = iconTranslateX
+            x = iconTranslateX
         ) {
             drawRoundRect(iconRect, switcherCornerRadius, switcherCornerRadius, iconPaint)
             /* don't draw clip path if icon is collapsed (to prevent drawing small circle
@@ -293,9 +323,7 @@ class SwitcherX @JvmOverloads constructor(
                 val value = it.animatedValue as Float
                 iconTranslateX = lerp(iconTranslateA, iconTranslateB, value)
             }
-            doOnEnd {
-                onClickOffset = 0f
-            }
+            doOnEnd { onClickOffset = 0f }
             duration = TRANSLATE_ANIMATION_DURATION
         }
 
@@ -304,9 +332,7 @@ class SwitcherX @JvmOverloads constructor(
         iconClipPaint.color = toColor
 
         val colorAnimator = ValueAnimator().apply {
-            addUpdateListener {
-                currentColor = it.animatedValue as Int
-            }
+            addUpdateListener { currentColor = it.animatedValue as Int }
             setIntValues(currentColor, toColor)
             setEvaluator(ArgbEvaluator())
             duration = COLOR_ANIMATION_DURATION
@@ -384,8 +410,11 @@ class SwitcherX @JvmOverloads constructor(
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private inner class SwitchOutline internal constructor(internal var width: Int, internal var height: Int) :
-            ViewOutlineProvider() {
+    private inner class SwitchOutline internal constructor(
+        internal var width: Int,
+        internal var height: Int
+    ) :
+        ViewOutlineProvider() {
 
         override fun getOutline(view: View, outline: Outline) {
             outline.setRoundRect(0, 0, width, height, switcherCornerRadius)
