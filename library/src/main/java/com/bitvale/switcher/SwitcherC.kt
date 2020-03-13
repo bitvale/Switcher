@@ -114,7 +114,7 @@ class SwitcherC @JvmOverloads constructor(
 
     init {
         attrs?.let { retrieveAttributes(attrs, defStyleAttr) }
-        setOnClickListener { animateSwitch() }
+        setOnClickListener { setChecked(!isChecked) }
     }
 
     @SuppressLint("CustomViewStyleable")
@@ -272,7 +272,7 @@ class SwitcherC @JvmOverloads constructor(
         var frequency = BOUNCE_ANIM_FREQUENCY_IN
         var newProgress = 1f
 
-        if (!isChecked) {
+        if (isChecked) {
             amplitude = BOUNCE_ANIM_AMPLITUDE_OUT
             frequency = BOUNCE_ANIM_FREQUENCY_OUT
             newProgress = 0f
@@ -286,7 +286,7 @@ class SwitcherC @JvmOverloads constructor(
             duration = SWITCHER_ANIMATION_DURATION
         }
 
-        val toColor = if (!isChecked) onColor else offColor
+        val toColor = if (isChecked) onColor else offColor
 
         iconClipPaint.color = toColor
 
@@ -299,7 +299,6 @@ class SwitcherC @JvmOverloads constructor(
 
         animatorSet?.apply {
             doOnStart {
-                isChecked = !isChecked
                 listener?.invoke(isChecked)
             }
             playTogether(iconAnimator, colorAnimator)
@@ -327,10 +326,11 @@ class SwitcherC @JvmOverloads constructor(
      */
     fun setChecked(checked: Boolean, withAnimation: Boolean = true) {
         if (this.isChecked != checked) {
+            this.isChecked = checked
             if (withAnimation) {
                 animateSwitch()
             } else {
-                this.isChecked = checked
+                animatorSet?.cancel()
                 if (!checked) {
                     currentColor = offColor
                     iconProgress = 1f

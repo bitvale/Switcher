@@ -130,7 +130,7 @@ class SwitcherX @JvmOverloads constructor(
 
     init {
         attrs?.let { retrieveAttributes(attrs, defStyleAttr) }
-        setOnClickListener { animateSwitch() }
+        setOnClickListener { setChecked(!isChecked) }
     }
 
     @SuppressLint("CustomViewStyleable")
@@ -302,7 +302,7 @@ class SwitcherX @JvmOverloads constructor(
         var iconTranslateB = -(width - shadowOffset - switcherCornerRadius * 2)
         var newProgress = 1f
 
-        if (!isChecked) {
+        if (isChecked) {
             amplitude = BOUNCE_ANIM_AMPLITUDE_OUT
             frequency = BOUNCE_ANIM_FREQUENCY_OUT
             iconTranslateA = iconTranslateB
@@ -327,7 +327,7 @@ class SwitcherX @JvmOverloads constructor(
             duration = TRANSLATE_ANIMATION_DURATION
         }
 
-        val toColor = if (!isChecked) onColor else offColor
+        val toColor = if (isChecked) onColor else offColor
 
         iconClipPaint.color = toColor
 
@@ -340,7 +340,6 @@ class SwitcherX @JvmOverloads constructor(
 
         animatorSet?.apply {
             doOnStart {
-                isChecked = !isChecked
                 listener?.invoke(isChecked)
             }
             playTogether(switcherAnimator, translateAnimator, colorAnimator)
@@ -368,16 +367,19 @@ class SwitcherX @JvmOverloads constructor(
      */
     fun setChecked(checked: Boolean, withAnimation: Boolean = true) {
         if (this.isChecked != checked) {
+            this.isChecked = checked
             if (withAnimation) {
                 animateSwitch()
             } else {
-                this.isChecked = checked
+                animatorSet?.cancel()
                 if (!checked) {
                     currentColor = offColor
                     iconProgress = 1f
+                    iconTranslateX = -(width - shadowOffset - switcherCornerRadius * 2)
                 } else {
                     currentColor = onColor
                     iconProgress = 0f
+                    iconTranslateX = -shadowOffset
                 }
             }
         }
@@ -402,6 +404,7 @@ class SwitcherX @JvmOverloads constructor(
     private fun forceUncheck() {
         currentColor = offColor
         iconProgress = 1f
+        iconTranslateX = -(width - shadowOffset - switcherCornerRadius * 2)
     }
 
     private fun setShadowBlurRadius(elevation: Float) {
