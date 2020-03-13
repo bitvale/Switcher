@@ -327,7 +327,7 @@ class SwitcherC @JvmOverloads constructor(
     fun setChecked(checked: Boolean, withAnimation: Boolean = true) {
         if (this.isChecked != checked) {
             this.isChecked = checked
-            if (withAnimation) {
+            if (withAnimation && width != 0) {
                 animateSwitch()
             } else {
                 animatorSet?.cancel()

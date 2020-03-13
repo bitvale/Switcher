@@ -8,7 +8,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 29
         versionCode 1
-        versionName "1.0.7"
+        versionName "1.0.8"
     }
 
     kotlinOptions {
