@@ -56,6 +56,7 @@ class SwitcherC @JvmOverloads constructor(
     private var defHeight = 0
     private var defWidth = 0
     var isChecked = true
+        private set
 
     @ColorInt
     private var onColor = 0
