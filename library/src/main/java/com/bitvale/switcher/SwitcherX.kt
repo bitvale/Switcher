@@ -34,6 +34,36 @@ class SwitcherX @JvmOverloads constructor(
     private var iconTranslateX = 0f
 
     private var onClickOffset = 0f
+        set(value) {
+            field = value
+            switcherRect.left = value + shadowOffset
+            switcherRect.top = value + shadowOffset / 2
+            switcherRect.right = width.toFloat() - value - shadowOffset
+            switcherRect.bottom = height.toFloat() - value - shadowOffset - shadowOffset / 2
+            if (!isLollipopAndAbove()) generateShadow()
+            invalidate()
+        }
+
+    override var iconProgress = 0f
+        set(value) {
+            if (field != value) {
+                field = value
+
+                val iconOffset = lerp(0f, iconRadius - iconCollapsedWidth / 2, value)
+                iconRect.left = width - switcherCornerRadius - iconCollapsedWidth / 2 - iconOffset
+                iconRect.right = width - switcherCornerRadius + iconCollapsedWidth / 2 + iconOffset
+
+                val clipOffset = lerp(0f, iconClipRadius, value)
+                iconClipRect.set(
+                        iconRect.centerX() - clipOffset,
+                        iconRect.centerY() - clipOffset,
+                        iconRect.centerX() + clipOffset,
+                        iconRect.centerY() + clipOffset
+                )
+                if (!isLollipopAndAbove()) generateShadow()
+                postInvalidateOnAnimation()
+            }
+        }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val widthMode = MeasureSpec.getMode(widthMeasureSpec)

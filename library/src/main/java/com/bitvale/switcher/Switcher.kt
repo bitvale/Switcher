@@ -1,10 +1,8 @@
 package com.bitvale.switcher
 
 import android.animation.AnimatorSet
-import android.annotation.TargetApi
 import android.content.Context
 import android.graphics.*
-import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
@@ -22,54 +20,54 @@ abstract class Switcher @JvmOverloads constructor(
         defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    protected var iconRadius = 0f
-    protected var iconClipRadius = 0f
-    protected var iconCollapsedWidth = 0f
-    protected var defHeight = 0
-    protected var defWidth = 0
-    var isChecked = true
+    protected open var iconRadius = 0f
+    protected open var iconClipRadius = 0f
+    protected open var iconCollapsedWidth = 0f
+    protected open var defHeight = 0
+    protected open var defWidth = 0
+    open var isChecked = true
         protected set
 
     @ColorInt
-    var onColor = 0
+    open var onColor = 0
     @ColorInt
-    var offColor = 0
+    open var offColor = 0
     @ColorInt
-    protected var iconColor = 0
+    protected open var iconColor = 0
 
-    protected val switcherPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    protected open val switcherPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    protected val iconRect = RectF(0f, 0f, 0f, 0f)
-    protected val iconClipRect = RectF(0f, 0f, 0f, 0f)
-    protected val iconPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    protected open val iconRect = RectF(0f, 0f, 0f, 0f)
+    protected open val iconClipRect = RectF(0f, 0f, 0f, 0f)
+    protected open val iconPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    protected val iconClipPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    protected open val iconClipPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    protected var animatorSet: AnimatorSet? = AnimatorSet()
+    protected open var animatorSet: AnimatorSet? = AnimatorSet()
 
-    protected val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    protected var shadow: Bitmap? = null
-    protected var shadowOffset = 0f
+    protected open val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    protected open var shadow: Bitmap? = null
+    protected open var shadowOffset = 0f
 
     @ColorInt
-    protected var currentColor = 0
+    protected open var currentColor = 0
         set(value) {
             field = value
             switcherPaint.color = value
             iconClipPaint.color = value
         }
 
-    protected var switchElevation = 0f
-    protected var iconHeight = 0f
+    protected open var switchElevation = 0f
+    protected open var iconHeight = 0f
 
-    protected var iconProgress = 0f
+    protected open var iconProgress = 0f
 
     init {
         attrs?.let { retrieveAttributes(attrs, defStyleAttr) }
         setOnClickListener { setChecked(!isChecked) }
     }
 
-    protected fun retrieveAttributes(attrs: AttributeSet, defStyleAttr: Int) {
+    protected open fun retrieveAttributes(attrs: AttributeSet, defStyleAttr: Int) {
         val typedArray = context.obtainStyledAttributes(
                 attrs,
                 R.styleable.Switcher,
@@ -110,7 +108,7 @@ abstract class Switcher @JvmOverloads constructor(
 
     abstract fun generateShadow()
 
-    fun applyColorChange() {
+    open fun applyColorChange() {
         animatorSet?.cancel()
         if (!isChecked) {
             currentColor = offColor
@@ -125,7 +123,7 @@ abstract class Switcher @JvmOverloads constructor(
 
     abstract fun animateSwitch()
 
-    protected var listener: ((isChecked: Boolean) -> Unit)? = null
+    protected open var listener: ((isChecked: Boolean) -> Unit)? = null
 
     /**
      * Register a callback to be invoked when the isChecked state of this switch
@@ -133,7 +131,7 @@ abstract class Switcher @JvmOverloads constructor(
      *
      * @param listener the callback to call on isChecked state change
      */
-    fun setOnCheckedChangeListener(listener: (isChecked: Boolean) -> Unit) {
+    open fun setOnCheckedChangeListener(listener: (isChecked: Boolean) -> Unit) {
         this.listener = listener
     }
 
@@ -163,7 +161,7 @@ abstract class Switcher @JvmOverloads constructor(
 
     abstract fun forceUncheck()
 
-    protected fun setShadowBlurRadius(elevation: Float) {
+    protected open fun setShadowBlurRadius(elevation: Float) {
         val maxElevation = context.toPx(24f)
         switchElevation = min(25f * (elevation / maxElevation), 25f)
     }

@@ -33,6 +33,28 @@ class SwitcherC @JvmOverloads constructor(
 
     private var switcherRadius = 0f
 
+    override var iconProgress = 0f
+        set(value) {
+            if (field != value) {
+                field = value
+
+                val iconOffset = lerp(0f, iconRadius - iconCollapsedWidth / 2, value)
+                iconRect.left =
+                        (switcherRadius - iconCollapsedWidth / 2 - iconOffset) + shadowOffset
+                iconRect.right =
+                        (switcherRadius + iconCollapsedWidth / 2 + iconOffset) + shadowOffset
+
+                val clipOffset = lerp(0f, iconClipRadius, value)
+                iconClipRect.set(
+                        iconRect.centerX() - clipOffset,
+                        iconRect.centerY() - clipOffset,
+                        iconRect.centerX() + clipOffset,
+                        iconRect.centerY() + clipOffset
+                )
+                postInvalidateOnAnimation()
+            }
+        }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val widthMode = MeasureSpec.getMode(widthMeasureSpec)
         var width = MeasureSpec.getSize(widthMeasureSpec)
