@@ -61,9 +61,9 @@ class SwitcherX @JvmOverloads constructor(
         private set
 
     @ColorInt
-    private var onColor = 0
+    var onColor = 0
     @ColorInt
-    private var offColor = 0
+    var offColor = 0
     @ColorInt
     private var iconColor = 0
 
@@ -262,6 +262,17 @@ class SwitcherX @JvmOverloads constructor(
             input.destroy()
             output.destroy()
             blur.destroy()
+        }
+    }
+
+    fun applyColorChange() {
+        animatorSet?.cancel()
+        if (!isChecked) {
+            currentColor = offColor
+            iconProgress = 1f
+        } else {
+            currentColor = onColor
+            iconProgress = 0f
         }
     }
 

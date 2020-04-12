@@ -6,7 +6,7 @@ android {
     compileSdkVersion 29
     defaultConfig {
         applicationId "com.bitvale.switcher"
-        minSdkVersion 19
+        minSdkVersion 17
         targetSdkVersion 29
         versionCode 1
         versionName "1.0.9"
