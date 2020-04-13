@@ -220,6 +220,7 @@ class SwitcherC @JvmOverloads constructor(
                     currentColor = onColor
                     iconProgress = 0f
                 }
+                listener?.invoke(isChecked)
             }
         }
     }

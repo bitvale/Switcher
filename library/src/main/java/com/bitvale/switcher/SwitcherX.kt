@@ -258,6 +258,7 @@ class SwitcherX @JvmOverloads constructor(
                     iconProgress = 0f
                     iconTranslateX = -shadowOffset
                 }
+                listener?.invoke(isChecked)
             }
         }
     }
