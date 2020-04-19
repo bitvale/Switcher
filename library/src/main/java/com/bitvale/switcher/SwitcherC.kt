@@ -21,7 +21,6 @@ import androidx.core.animation.doOnStart
 import com.bitvale.switcher.commons.*
 import kotlin.math.min
 
-
 /**
  * Created by Alexander Kolpakov on 11/7/2018
  */

@@ -14,6 +14,7 @@ import com.bitvale.switcher.commons.isLollipopAndAbove
 import com.bitvale.switcher.commons.toPx
 import kotlin.math.min
 
+
 abstract class Switcher @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
