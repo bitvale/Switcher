@@ -8,10 +8,10 @@ import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.ColorInt
-import com.bitvale.switcher.commons.KEY_CHECKED
-import com.bitvale.switcher.commons.STATE
-import com.bitvale.switcher.commons.isLollipopAndAbove
-import com.bitvale.switcher.commons.toPx
+import com.bitvale.switcher.common.KEY_CHECKED
+import com.bitvale.switcher.common.STATE
+import com.bitvale.switcher.common.isLollipopAndAbove
+import com.bitvale.switcher.common.toPx
 import kotlin.math.min
 
 

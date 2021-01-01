@@ -1,4 +1,4 @@
-package com.bitvale.switcher.commons
+package com.bitvale.switcher.common
 
 /**
  * Created by Alexander Kolpakov on 11/18/2018

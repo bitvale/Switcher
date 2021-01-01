@@ -18,7 +18,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewOutlineProvider
 import androidx.core.animation.doOnStart
-import com.bitvale.switcher.commons.*
+import com.bitvale.switcher.common.*
 import kotlin.math.min
 
 /**

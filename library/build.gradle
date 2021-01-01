@@ -1,14 +1,41 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.github.dcendents.android-maven'
+
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'com.bitvale:switcher'
+
+    publishedGroupId = 'com.bitvale'
+    artifact = 'switcher'
+    libraryVersion = '1.1.0'
+
+    libraryName = 'Switcher'
+    libraryDescription = 'Android switchers'
+
+    siteUrl = 'https://github.com/bitvale/Switcher'
+    gitUrl = 'https://github.com/bitvale/Switcher'
+
+    developerId = 'bitvale'
+    developerName = 'Alexander Kolpakov'
+    developerEmail = 'jquickapp@gmail.com'
+    organization = ''
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+
 android {
-    compileSdkVersion 29
+    compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {
-        minSdkVersion 17
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.1.0"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -20,6 +47,9 @@ android {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.2.0'
+    implementation kotlin('kotlin-stdlib')
+    implementation google('core-ktx')
 }
+
+apply from: 'https://raw.githubusercontent.com/quangctkm9207/template-files/master/android/gradle/install.gradle'
+apply from: 'https://raw.githubusercontent.com/quangctkm9207/template-files/master/android/gradle/bintray.gradle'

@@ -17,7 +17,7 @@ import android.view.ViewOutlineProvider
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
 import androidx.core.graphics.withTranslation
-import com.bitvale.switcher.commons.*
+import com.bitvale.switcher.common.*
 
 /**
  * Created by Alexander Kolpakov on 11/7/2018

@@ -1,4 +1,4 @@
-package com.bitvale.switcher.commons
+package com.bitvale.switcher.common
 
 import android.content.Context
 import android.util.TypedValue
