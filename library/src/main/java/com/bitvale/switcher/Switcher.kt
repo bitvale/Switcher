@@ -2,7 +2,12 @@ package com.bitvale.switcher
 
 import android.animation.AnimatorSet
 import android.content.Context
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
+import android.graphics.RectF
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
@@ -10,15 +15,18 @@ import android.view.View
 import androidx.annotation.ColorInt
 import com.bitvale.switcher.common.KEY_CHECKED
 import com.bitvale.switcher.common.STATE
-import com.bitvale.switcher.common.isLollipopAndAbove
+import com.bitvale.switcher.common.isLollipopOrAbove
 import com.bitvale.switcher.common.toPx
 import kotlin.math.min
 
-
+/**
+ * Created by DATL4G on 13-Apr-20
+ * https://github.com/DATL4G
+ */
 abstract class Switcher @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet? = null,
-        defStyleAttr: Int = 0
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
     protected open var iconRadius = 0f
@@ -31,8 +39,10 @@ abstract class Switcher @JvmOverloads constructor(
 
     @ColorInt
     open var onColor = 0
+
     @ColorInt
     open var offColor = 0
+
     @ColorInt
     protected open var iconColor = 0
 
@@ -65,15 +75,15 @@ abstract class Switcher @JvmOverloads constructor(
 
     init {
         attrs?.let { retrieveAttributes(attrs, defStyleAttr) }
-        setOnClickListener { setChecked(!isChecked) }
+        this.setOnClickListener { setChecked(!isChecked) }
     }
 
     protected open fun retrieveAttributes(attrs: AttributeSet, defStyleAttr: Int) {
         val typedArray = context.obtainStyledAttributes(
-                attrs,
-                R.styleable.Switcher,
-                defStyleAttr,
-                R.style.Switcher
+            attrs,
+            R.styleable.Switcher,
+            defStyleAttr,
+            R.style.Switcher
         )
 
         switchElevation = typedArray.getDimension(R.styleable.Switcher_elevation, 0f)
@@ -95,54 +105,13 @@ abstract class Switcher @JvmOverloads constructor(
 
         typedArray.recycle()
 
-        if (!isLollipopAndAbove() && switchElevation > 0f) {
+        if (!isLollipopOrAbove() && switchElevation > 0f) {
             shadowPaint.colorFilter = PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN)
             shadowPaint.alpha = 51 // 20%
             setShadowBlurRadius(switchElevation)
             setLayerType(LAYER_TYPE_SOFTWARE, null)
         }
     }
-
-    abstract override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int)
-
-    abstract override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int)
-
-    abstract fun generateShadow()
-
-    open fun applyColorChange() {
-        animatorSet?.cancel()
-        if (!isChecked) {
-            currentColor = offColor
-            iconProgress = 1f
-        } else {
-            currentColor = onColor
-            iconProgress = 0f
-        }
-    }
-
-    abstract override fun onDraw(canvas: Canvas?)
-
-    abstract fun animateSwitch()
-
-    protected open var listener: ((isChecked: Boolean) -> Unit)? = null
-
-    /**
-     * Register a callback to be invoked when the isChecked state of this switch
-     * changes.
-     *
-     * @param listener the callback to call on isChecked state change
-     */
-    open fun setOnCheckedChangeListener(listener: (isChecked: Boolean) -> Unit) {
-        this.listener = listener
-    }
-
-    /**
-     * <p>Changes the isChecked state of this switch.</p>
-     *
-     * @param checked true to check the switch, false to uncheck it
-     * @param withAnimation use animation
-     */
-    abstract fun setChecked(checked: Boolean, withAnimation: Boolean = true)
 
     override fun onSaveInstanceState(): Parcelable {
         super.onSaveInstanceState()
@@ -160,10 +129,34 @@ abstract class Switcher @JvmOverloads constructor(
         }
     }
 
-    abstract fun forceUncheck()
-
-    protected open fun setShadowBlurRadius(elevation: Float) {
+    private fun setShadowBlurRadius(elevation: Float) {
         val maxElevation = context.toPx(24f)
         switchElevation = min(25f * (elevation / maxElevation), 25f)
     }
+
+    protected var listener: ((isChecked: Boolean) -> Unit)? = null
+
+    /**
+     * Register a callback to be invoked when the isChecked state of this switch
+     * changes.
+     *
+     * @param listener the callback to call on isChecked state change
+     */
+    fun setOnCheckedChangeListener(listener: (isChecked: Boolean) -> Unit) {
+        this.listener = listener
+    }
+
+    /**
+     * <p>Changes the isChecked state of this switch.</p>
+     *
+     * @param checked true to check the switch, false to uncheck it
+     * @param withAnimation use animation
+     */
+    abstract fun setChecked(checked: Boolean, withAnimation: Boolean = true)
+
+    abstract fun generateShadow()
+
+    abstract fun animateSwitch()
+
+    abstract fun forceUncheck()
 }

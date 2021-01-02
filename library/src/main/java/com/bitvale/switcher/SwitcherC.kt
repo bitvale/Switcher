@@ -18,11 +18,19 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewOutlineProvider
 import androidx.core.animation.doOnStart
-import com.bitvale.switcher.common.*
+import com.bitvale.switcher.common.BOUNCE_ANIM_AMPLITUDE_IN
+import com.bitvale.switcher.common.BOUNCE_ANIM_AMPLITUDE_OUT
+import com.bitvale.switcher.common.BOUNCE_ANIM_FREQUENCY_IN
+import com.bitvale.switcher.common.BOUNCE_ANIM_FREQUENCY_OUT
+import com.bitvale.switcher.common.COLOR_ANIMATION_DURATION
+import com.bitvale.switcher.common.SWITCHER_ANIMATION_DURATION
+import com.bitvale.switcher.common.isLollipopOrAbove
+import com.bitvale.switcher.common.lerp
 import kotlin.math.min
 
 /**
- * Created by Alexander Kolpakov on 11/7/2018
+ * Created by Alexander Kolpakov (jquickapp@gmail.com) on 11-Jul-18
+ * https://github.com/bitvale
  */
 class SwitcherC @JvmOverloads constructor(
     context: Context,
@@ -39,16 +47,16 @@ class SwitcherC @JvmOverloads constructor(
 
                 val iconOffset = lerp(0f, iconRadius - iconCollapsedWidth / 2, value)
                 iconRect.left =
-                        (switcherRadius - iconCollapsedWidth / 2 - iconOffset) + shadowOffset
+                    (switcherRadius - iconCollapsedWidth / 2 - iconOffset) + shadowOffset
                 iconRect.right =
-                        (switcherRadius + iconCollapsedWidth / 2 + iconOffset) + shadowOffset
+                    (switcherRadius + iconCollapsedWidth / 2 + iconOffset) + shadowOffset
 
                 val clipOffset = lerp(0f, iconClipRadius, value)
                 iconClipRect.set(
-                        iconRect.centerX() - clipOffset,
-                        iconRect.centerY() - clipOffset,
-                        iconRect.centerX() + clipOffset,
-                        iconRect.centerY() + clipOffset
+                    iconRect.centerX() - clipOffset,
+                    iconRect.centerY() - clipOffset,
+                    iconRect.centerX() + clipOffset,
+                    iconRect.centerY() + clipOffset
                 )
                 postInvalidateOnAnimation()
             }
@@ -66,7 +74,7 @@ class SwitcherC @JvmOverloads constructor(
             height = min
         }
 
-        if (!isLollipopAndAbove()) {
+        if (!isLollipopOrAbove()) {
             width += switchElevation.toInt() * 2
             height += switchElevation.toInt() * 2
         }
@@ -75,14 +83,14 @@ class SwitcherC @JvmOverloads constructor(
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        if (isLollipopAndAbove()) {
-            outlineProvider = SwitchOutline(w, h)
+        switcherRadius = (min(w.toFloat(), h.toFloat()) / 2f) - shadowOffset
+
+        if (isLollipopOrAbove()) {
+            outlineProvider = SwitchOutline(switcherRadius.toInt())
             elevation = switchElevation
         } else {
             shadowOffset = switchElevation
         }
-
-        switcherRadius = (min(w.toFloat(), h.toFloat()) / 2f) - shadowOffset
 
         iconRadius = switcherRadius * 0.5f
         iconClipRadius = iconRadius / 2.25f
@@ -91,27 +99,27 @@ class SwitcherC @JvmOverloads constructor(
         iconHeight = iconRadius * 2f
 
         iconRect.set(
-                (switcherRadius - iconCollapsedWidth / 2f) + shadowOffset,
-                ((switcherRadius * 2f - iconHeight) / 2f) + shadowOffset / 2,
-                (switcherRadius + iconCollapsedWidth / 2f) + shadowOffset,
-                (switcherRadius * 2f - (switcherRadius * 2f - iconHeight) / 2f) + shadowOffset / 2
+            (switcherRadius - iconCollapsedWidth / 2f) + shadowOffset,
+            ((switcherRadius * 2f - iconHeight) / 2f) + shadowOffset / 2,
+            (switcherRadius + iconCollapsedWidth / 2f) + shadowOffset,
+            (switcherRadius * 2f - (switcherRadius * 2f - iconHeight) / 2f) + shadowOffset / 2
         )
 
         if (!isChecked) {
             iconRect.left =
-                    (switcherRadius - iconCollapsedWidth / 2f - (iconRadius - iconCollapsedWidth / 2f)) + shadowOffset
+                (switcherRadius - iconCollapsedWidth / 2f - (iconRadius - iconCollapsedWidth / 2f)) + shadowOffset
             iconRect.right =
-                    (switcherRadius + iconCollapsedWidth / 2f + (iconRadius - iconCollapsedWidth / 2f)) + shadowOffset
+                (switcherRadius + iconCollapsedWidth / 2f + (iconRadius - iconCollapsedWidth / 2f)) + shadowOffset
 
             iconClipRect.set(
-                    iconRect.centerX() - iconClipRadius,
-                    iconRect.centerY() - iconClipRadius,
-                    iconRect.centerX() + iconClipRadius,
-                    iconRect.centerY() + iconClipRadius
+                iconRect.centerX() - iconClipRadius,
+                iconRect.centerY() - iconClipRadius,
+                iconRect.centerX() + iconClipRadius,
+                iconRect.centerY() + iconClipRadius
             )
         }
 
-        if (!isLollipopAndAbove()) generateShadow()
+        if (!isLollipopOrAbove()) generateShadow()
     }
 
     override fun generateShadow() {
@@ -125,8 +133,8 @@ class SwitcherC @JvmOverloads constructor(
             val c = Canvas(shadow as Bitmap)
 
             c.drawCircle(
-                    switcherRadius + shadowOffset, switcherRadius + shadowOffset / 2,
-                    switcherRadius, shadowPaint
+                switcherRadius + shadowOffset, switcherRadius + shadowOffset / 2,
+                switcherRadius, shadowPaint
             )
             val rs = RenderScript.create(context)
             val blur = ScriptIntrinsicBlur.create(rs, Element.U8(rs))
@@ -144,20 +152,23 @@ class SwitcherC @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas?) {
         // shadow
-        if (!isLollipopAndAbove() && switchElevation > 0f && !isInEditMode) {
+        if (!isLollipopOrAbove() && switchElevation > 0f && !isInEditMode) {
             canvas?.drawBitmap(shadow as Bitmap, 0f, shadowOffset, null)
         }
 
         // switcher
         canvas?.drawCircle(
-                switcherRadius + shadowOffset, switcherRadius + shadowOffset / 2,
-                switcherRadius, switcherPaint
+            switcherRadius + shadowOffset,
+            switcherRadius + shadowOffset / 2,
+            switcherRadius,
+            switcherPaint
         )
 
         // icon
         canvas?.drawRoundRect(iconRect, switcherRadius, switcherRadius, iconPaint)
-        /* don't draw clip path if icon is collapsed (to prevent drawing small circle
-        on rounded rect when switch is isChecked)*/
+
+        // don't draw clip path if icon is collapsed (to prevent drawing small circle
+        // on rounded rect when switch is isChecked)
         if (iconClipRect.width() > iconCollapsedWidth)
             canvas?.drawRoundRect(iconClipRect, iconRadius, iconRadius, iconClipPaint)
 
@@ -230,21 +241,15 @@ class SwitcherC @JvmOverloads constructor(
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private inner class SwitchOutline internal constructor(
-            internal var width: Int,
-            internal var height: Int
-    ) :
-            ViewOutlineProvider() {
-
+    private class SwitchOutline constructor(private val size: Int) : ViewOutlineProvider() {
         override fun getOutline(view: View, outline: Outline) {
             outline.setRoundRect(
-                    0,
-                    0,
-                    (switcherRadius * 2).toInt(),
-                    (switcherRadius * 2).toInt(),
-                    switcherRadius
+                0,
+                0,
+                size * 2,
+                size * 2,
+                size.toFloat()
             )
         }
     }
-
 }

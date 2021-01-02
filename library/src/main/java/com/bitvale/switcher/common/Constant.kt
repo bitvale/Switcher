@@ -1,7 +1,8 @@
 package com.bitvale.switcher.common
 
 /**
- * Created by Alexander Kolpakov on 11/18/2018
+ * Created by Alexander Kolpakov (jquickapp@gmail.com) on 18-Nov-18
+ * https://github.com/bitvale
  */
 const val SWITCHER_ANIMATION_DURATION = 800L
 const val COLOR_ANIMATION_DURATION = 300L

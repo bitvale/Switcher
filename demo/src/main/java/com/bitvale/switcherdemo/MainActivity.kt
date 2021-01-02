@@ -7,7 +7,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
 
-
+/**
+ * Created by Alexander Kolpakov (jquickapp@gmail.com) on 11-Jul-18
+ * https://github.com/bitvale
+ */
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,7 +40,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun openDribbble() {
         val uri = Uri.parse(getString(R.string.dribbble_link))
-        val intent = Intent(Intent.ACTION_VIEW, uri)
-        startActivity(intent)
+        Intent(Intent.ACTION_VIEW, uri).apply {
+            if (resolveActivity(packageManager) != null) {
+                startActivity(this)
+            }
+        }
     }
 }

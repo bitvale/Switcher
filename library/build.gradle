@@ -1,8 +1,10 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
 
-apply plugin: 'com.jfrog.bintray'
-apply plugin: 'com.github.dcendents.android-maven'
+    id 'com.jfrog.bintray'
+    id 'com.github.dcendents.android-maven'
+}
 
 ext {
     bintrayRepo = 'maven'
@@ -10,7 +12,7 @@ ext {
 
     publishedGroupId = 'com.bitvale'
     artifact = 'switcher'
-    libraryVersion = '1.1.0'
+    libraryVersion = rootProject.ext.versionName
 
     libraryName = 'Switcher'
     libraryDescription = 'Android switchers'
@@ -37,10 +39,12 @@ android {
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = "1.8"
     }

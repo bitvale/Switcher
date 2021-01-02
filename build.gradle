@@ -1,5 +1,4 @@
 buildscript {
-
     ext {
         applicationId = "com.bitvale.switcher"
         compileSdkVersion = 30
@@ -16,19 +15,19 @@ buildscript {
         ]
     }
 
-    ext.kotlin_version = '1.4.10'
     repositories {
         google()
         jcenter()
-
     }
+
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
     }
+
     subprojects {
         tasks.withType(Javadoc).all { enabled = false }
     }
