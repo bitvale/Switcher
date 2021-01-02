@@ -13,6 +13,10 @@ Created this cool [switch animation](https://dribbble.com/shots/5429846-Switcher
   <img alt="Read on Medium" src="/art/medium.png" width="196" height="80" hspace="15" />
 </a>
 
+APK
+-----
+Install the latest [release](https://github.com/bitvale/Switcher/releases/latest)
+
 USAGE
 -----
 
@@ -20,7 +24,7 @@ Just add Switcher view in your layout XML and Switcher library in your project v
 
 ```gradle
 dependencies {
-  implementation 'com.bitvale:switcher:1.1.0'
+  implementation 'com.bitvale:switcher:1.1.1'
 }
 ```
 

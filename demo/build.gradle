@@ -16,6 +16,12 @@ android {
 
         vectorDrawables.useSupportLibrary = true
     }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.debug
+        }
+    }
 }
 
 dependencies {
