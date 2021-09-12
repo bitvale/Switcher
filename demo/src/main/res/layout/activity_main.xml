@@ -48,7 +48,7 @@
         app:layout_constraintTop_toBottomOf="@+id/tv_switcher_x" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/dribbble"
+        android:id="@+id/action_dribbble"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
