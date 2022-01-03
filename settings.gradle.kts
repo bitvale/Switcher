@@ -16,6 +16,7 @@ pluginManagement {
 
     val agpVersion: String by settings
     val kotlinVersion: String by settings
+    val gradleMavenPublishVersion: String by settings
 
     plugins {
         id("com.android.application") version agpVersion
@@ -23,6 +24,8 @@ pluginManagement {
 
         id("org.jetbrains.kotlin.jvm") version kotlinVersion
         id("org.jetbrains.kotlin.android") version kotlinVersion
+
+        id("com.vanniktech.maven.publish") version gradleMavenPublishVersion
     }
 
     resolutionStrategy {
@@ -31,6 +34,11 @@ pluginManagement {
                 "com.android.application",
                 "com.android.library" -> {
                     useModule("com.android.tools.build:gradle:$agpVersion")
+                }
+                "com.vanniktech.maven.publish" -> {
+                    useModule(
+                        "com.vanniktech:gradle-maven-publish-plugin:$gradleMavenPublishVersion"
+                    )
                 }
             }
         }

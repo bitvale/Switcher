@@ -4,6 +4,7 @@ plugins {
     id(GradlePluginId.ANDROID_APPLICATION) apply false
     id(GradlePluginId.KOTLIN_ANDROID) apply false
     id(GradlePluginId.COMMON_CONFIG_PLUGIN) apply false
+    id(GradlePluginId.MAVEN_PUBLISH_PLUGIN) apply false
 }
 
 allprojects {
